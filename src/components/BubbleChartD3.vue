@@ -1,28 +1,30 @@
 <template>
-  <div>
-    <div id="chart" />
-  </div>
+  <div :id="id" />
 </template>
 
 <script>
 import * as d3 from 'd3'
 
+const BACKGROUND_COLOR_CANVAS = '#EEE'
+const BACKGROUND_ARTICLE = 'rgba(161,210,199,0.8)'
+const BACKGROUND_TOPIC = 'rgba(128, 128, 128, 0.8)'
+const MIN_ZOOM = 1
+const MAX_ZOOM = 8
+
 export default {
   props: {
+    id: {
+      type: String,
+      default: 'chart-1'
+    },
     data: {
       type: Array,
       default: () => []
     }
   },
   mounted () {
-    const BACKGROUND_COLOR_CANVAS = '#EEE'
-    const BACKGROUND_ARTICLE = 'rgba(161,210,199,0.8)'
-    const BACKGROUND_TOPIC = 'rgba(128, 128, 128, 0.8)'
-    const MIN_ZOOM = 1
-    const MAX_ZOOM = 8
-
-    const chartWidth = 1200
-    const chartHeight = 700
+    let chartWidth = window.innerWidth
+    let chartHeight = window.innerHeight
 
     const coordinateScaleX = d3.scaleLinear()
     const coordinateScaleY = d3.scaleLinear()
@@ -32,18 +34,18 @@ export default {
     coordinateScaleY.domain([d3.min(this.data, d => d.y), d3.max(this.data, d => d.y)]).range([0, chartHeight])
     radiusScale.domain([d3.min(this.data, d => d.r), d3.max(this.data, d => d.r)]).range([2, 30])
 
-    const canvasChart = d3.select('#chart').append('canvas')
+    let canvasChart = d3.select(`#${this.id}`).append('canvas')
       .attr('width', chartWidth)
       .attr('height', chartHeight)
 
-    const context = canvasChart.node().getContext('2d')
-
-    context.fillStyle = BACKGROUND_COLOR_CANVAS
-    context.fillRect(0, 0, context.canvas.width, context.canvas.height)
+    let context = canvasChart.node().getContext('2d')
 
     let lastZoomEvent = null
 
     const drawPoints = () => {
+      context.fillStyle = BACKGROUND_COLOR_CANVAS
+      context.fillRect(0, 0, context.canvas.width, context.canvas.height)
+
       for (const point of this.data) {
         context.beginPath()
         context.fillStyle = point.pointData._type === 'ARTICLE' ? BACKGROUND_ARTICLE : BACKGROUND_TOPIC
@@ -72,9 +74,6 @@ export default {
       .on('zoom', (e) => {
         context.save()
         context.clearRect(0, 0, chartWidth, chartHeight)
-
-        context.fillStyle = BACKGROUND_COLOR_CANVAS
-        context.fillRect(0, 0, context.canvas.width, context.canvas.height)
 
         context.translate(e.transform.x, e.transform.y)
         context.scale(e.transform.k, e.transform.k)
@@ -126,6 +125,21 @@ export default {
       if (hoveredPoint) {
         alert(`${hoveredPoint.pointData._type} - ${hoveredPoint.pointData.id}`)
       }
+    })
+
+    window.addEventListener('resize', () => {
+      chartWidth = window.innerWidth
+      chartHeight = window.innerHeight
+
+      d3.select(`#${this.id} > *`).remove()
+
+      canvasChart = d3.select(`#${this.id}`).append('canvas')
+        .attr('width', chartWidth)
+        .attr('height', chartHeight)
+
+      context = canvasChart.node().getContext('2d')
+
+      drawPoints()
     })
   }
 }
