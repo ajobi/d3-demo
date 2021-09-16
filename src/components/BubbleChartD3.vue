@@ -8,8 +8,6 @@ import * as d3 from 'd3'
 const BACKGROUND_COLOR_CANVAS = '#EEE'
 const BACKGROUND_ARTICLE = 'rgba(161,210,199,0.8)'
 const BACKGROUND_TOPIC = 'rgba(128, 128, 128, 0.8)'
-const MIN_ZOOM = 1
-const MAX_ZOOM = 8
 const DEBOUNCE_TIME = 5
 
 export default {
@@ -21,6 +19,14 @@ export default {
     data: {
       type: Array,
       default: () => []
+    },
+    minZoom: {
+      type: Number,
+      default: 1
+    },
+    maxZoom: {
+      type: Number,
+      default: 8
     }
   },
   mounted () {
@@ -98,7 +104,7 @@ export default {
 
       d3.select(context.canvas).call(d3.zoom()
         .translateExtent([[0, 0], [chartWidth, chartHeight]])
-        .scaleExtent([MIN_ZOOM, MAX_ZOOM])
+        .scaleExtent([this.minZoom, this.maxZoom])
         .on('zoom', (e) => {
           context.save()
           context.clearRect(0, 0, chartWidth, chartHeight)
