@@ -10,6 +10,7 @@ const BACKGROUND_ARTICLE = 'rgba(161,210,199,0.8)'
 const BACKGROUND_TOPIC = 'rgba(128, 128, 128, 0.8)'
 const MIN_ZOOM = 1
 const MAX_ZOOM = 8
+const DEBOUNCE_TIME = 5
 
 export default {
   props: {
@@ -23,8 +24,13 @@ export default {
     }
   },
   mounted () {
+    let timeout = null
+
     window.addEventListener('resize', () => {
-      this.drawChart()
+      clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        this.drawChart()
+      }, DEBOUNCE_TIME)
     })
 
     this.drawChart()
