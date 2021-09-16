@@ -46,9 +46,11 @@ export default {
       const coordinateScaleY = d3.scaleLinear()
       const radiusScale = d3.scaleLinear()
 
+      const maxRadius = chartWidth / 50
+
       coordinateScaleX.domain([d3.min(this.data, d => d.x), d3.max(this.data, d => d.x)]).range([0, chartWidth])
       coordinateScaleY.domain([d3.min(this.data, d => d.y), d3.max(this.data, d => d.y)]).range([0, chartHeight])
-      radiusScale.domain([d3.min(this.data, d => d.r), d3.max(this.data, d => d.r)]).range([chartWidth / 1000, chartWidth / 50])
+      radiusScale.domain([d3.min(this.data, d => d.r), d3.max(this.data, d => d.r)]).range([chartWidth / 1000, maxRadius])
 
       const canvasChart = d3.select(`#${this.id}`).append('canvas')
         .attr('width', chartWidth)
@@ -74,7 +76,7 @@ export default {
 
           if (point.pointData._type === 'TOPIC' && this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) {
             const textWidth = context.measureText(point.pointData.title).width
-            context.fillText(point.pointData.title, px - (textWidth / 2), py - 55)
+            context.fillText(point.pointData.title, px - (textWidth / 2), py - maxRadius - 5)
           }
 
           context.closePath()
