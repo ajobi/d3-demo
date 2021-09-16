@@ -49,7 +49,7 @@ export default createStore({
       const topicPoints = topics.map(topic => ({
         x: topic.x,
         y: topic.y,
-        r: 70,
+        r: 120,
         pointData: {
           id: topic.topic_id,
           title: topic.title,
