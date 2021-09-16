@@ -5,7 +5,6 @@
 <script>
 import * as d3 from 'd3'
 
-const BACKGROUND_COLOR_CANVAS = '#EEE'
 const BACKGROUND_ARTICLE = 'rgba(161,210,199,0.8)'
 const BACKGROUND_TOPIC = 'rgba(128, 128, 128, 0.8)'
 const DEBOUNCE_TIME = 5
@@ -27,6 +26,10 @@ export default {
     maxZoom: {
       type: Number,
       default: 8
+    },
+    background: {
+      type: String,
+      default: '#EEE'
     }
   },
   mounted () {
@@ -77,7 +80,7 @@ export default {
       this.lastZoomEvent = null
 
       const drawPoints = () => {
-        context.fillStyle = BACKGROUND_COLOR_CANVAS
+        context.fillStyle = this.background
         context.fillRect(0, 0, context.canvas.width, context.canvas.height)
 
         for (const point of this.data) {
