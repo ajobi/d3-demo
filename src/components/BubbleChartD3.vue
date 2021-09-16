@@ -28,9 +28,9 @@ export default {
     const coordinateScaleY = d3.scaleLinear()
     const radiusScale = d3.scaleLinear()
 
-    coordinateScaleX.domain([-200, 200]).range([0, chartWidth])
-    coordinateScaleY.domain([-200, 200]).range([0, chartHeight])
-    radiusScale.domain([0, 70]).range([0, 20])
+    coordinateScaleX.domain([d3.min(this.data, d => d.x), d3.max(this.data, d => d.x)]).range([0, chartWidth])
+    coordinateScaleY.domain([d3.min(this.data, d => d.y), d3.max(this.data, d => d.y)]).range([0, chartHeight])
+    radiusScale.domain([d3.min(this.data, d => d.r), d3.max(this.data, d => d.r)]).range([2, 30])
 
     const canvasChart = d3.select('#chart').append('canvas')
       .attr('width', chartWidth)
