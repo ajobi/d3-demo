@@ -42,7 +42,7 @@ export default {
 
       coordinateScaleX.domain([d3.min(this.data, d => d.x), d3.max(this.data, d => d.x)]).range([0, chartWidth])
       coordinateScaleY.domain([d3.min(this.data, d => d.y), d3.max(this.data, d => d.y)]).range([0, chartHeight])
-      radiusScale.domain([d3.min(this.data, d => d.r), d3.max(this.data, d => d.r)]).range([2, 50])
+      radiusScale.domain([d3.min(this.data, d => d.r), d3.max(this.data, d => d.r)]).range([chartWidth / 1000, chartWidth / 50])
 
       const canvasChart = d3.select(`#${this.id}`).append('canvas')
         .attr('width', chartWidth)
