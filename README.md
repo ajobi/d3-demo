@@ -1,4 +1,4 @@
-# vue-playground
+# d3-demo
 
 ## Project setup
 ```
