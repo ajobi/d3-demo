@@ -96,31 +96,29 @@ export default {
         context.fillStyle = this.background
         context.fillRect(0, 0, context.canvas.width, context.canvas.height)
 
-        for (const dataSet of this.data) {
-          for (const point of dataSet) {
-            context.beginPath()
-            context.fillStyle = point.color || 'rgba(128, 128, 128, 0.8)'
+        for (const point of allData) {
+          context.beginPath()
+          context.fillStyle = point.color || 'rgba(128, 128, 128, 0.8)'
 
-            const px = coordinateScaleX(point.x)
-            const py = coordinateScaleY(point.y)
-            const r = radiusScale(point.r)
+          const px = coordinateScaleX(point.x)
+          const py = coordinateScaleY(point.y)
+          const r = radiusScale(point.r)
 
-            context.arc(px, py, r, 0, 2 * Math.PI, true)
+          context.arc(px, py, r, 0, 2 * Math.PI, true)
 
-            const isThisPointHovered = this.hoveredPoints.some(hoverPoint => hoverPoint.id === point.id)
+          const isThisPointHovered = this.hoveredPoints.some(hoverPoint => hoverPoint.id === point.id)
 
-            if (isThisPointHovered) {
-              context.fillStyle = point.colorHover || 'rgba(128, 128, 128, 1)'
-            }
-
-            if (point.label && ((this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) || isThisPointHovered)) {
-              const textWidth = context.measureText(point.label).width
-              context.fillText(point.label, px - (textWidth / 2), py - MAX_BUBBLE_RADIUS - 5)
-            }
-
-            context.closePath()
-            context.fill()
+          if (isThisPointHovered) {
+            context.fillStyle = point.colorHover || 'rgba(128, 128, 128, 1)'
           }
+
+          if (point.label && ((this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) || isThisPointHovered)) {
+            const textWidth = context.measureText(point.label).width
+            context.fillText(point.label, px - (textWidth / 2), py - MAX_BUBBLE_RADIUS - 5)
+          }
+
+          context.closePath()
+          context.fill()
         }
 
         context.restore()
