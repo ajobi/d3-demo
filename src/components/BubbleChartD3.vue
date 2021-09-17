@@ -58,12 +58,12 @@ export default {
     drawChart () {
       d3.select(`#${this.id} > *`).remove()
 
-      const chartWidth = window.innerWidth
-      const chartHeight = window.innerHeight
+      this.chartWidth = window.innerWidth
+      this.chartHeight = window.innerHeight
 
-      const coordinateScaleX = d3.scaleLinear()
-      const coordinateScaleY = d3.scaleLinear()
-      const radiusScale = d3.scaleLinear()
+      this.coordinateScaleX = d3.scaleLinear()
+      this.coordinateScaleY = d3.scaleLinear()
+      this.radiusScale = d3.scaleLinear()
 
       const minX = d3.min(this.allData, d => d.x)
       const maxX = d3.max(this.allData, d => d.x)
@@ -75,120 +75,118 @@ export default {
       const paddingX = Math.abs(minX * 0.2)
       const paddingY = Math.abs(minY * 0.2)
 
-      const MIN_BUBBLE_RADIUS = Math.max(chartWidth / 1000, 2)
-      const MAX_BUBBLE_RADIUS = Math.max(chartWidth / 50, 30)
+      this.MIN_BUBBLE_RADIUS = Math.max(this.chartWidth / 1000, 2)
+      this.MAX_BUBBLE_RADIUS = Math.max(this.chartWidth / 50, 30)
 
-      coordinateScaleX.domain([minX - paddingX, maxX + paddingX]).range([0, chartWidth])
-      coordinateScaleY.domain([minY - paddingY, maxY + paddingY]).range([0, chartHeight])
-      radiusScale.domain([minR, maxR]).range([MIN_BUBBLE_RADIUS, MAX_BUBBLE_RADIUS])
+      this.coordinateScaleX.domain([minX - paddingX, maxX + paddingX]).range([0, this.chartWidth])
+      this.coordinateScaleY.domain([minY - paddingY, maxY + paddingY]).range([0, this.chartHeight])
+      this.radiusScale.domain([minR, maxR]).range([this.MIN_BUBBLE_RADIUS, this.MAX_BUBBLE_RADIUS])
 
-      const canvasChart = d3.select(`#${this.id}`).append('canvas')
-        .attr('width', chartWidth)
-        .attr('height', chartHeight)
-
-      const context = canvasChart.node().getContext('2d')
-
-      const drawPoints = () => {
-        if (this.lastZoomEvent) {
-          context.save()
-          context.clearRect(0, 0, chartWidth, chartHeight)
-
-          context.translate(this.lastZoomEvent.transform.x, this.lastZoomEvent.transform.y)
-          context.scale(this.lastZoomEvent.transform.k, this.lastZoomEvent.transform.k)
-        }
-
-        context.fillStyle = this.background
-        context.fillRect(0, 0, context.canvas.width, context.canvas.height)
-
-        for (const point of this.allData) {
-          context.beginPath()
-          context.fillStyle = point.color || 'rgba(128, 128, 128, 0.8)'
-
-          const px = coordinateScaleX(point.x)
-          const py = coordinateScaleY(point.y)
-          const r = radiusScale(point.r)
-
-          context.arc(px, py, r, 0, 2 * Math.PI, true)
-
-          const isThisPointHovered = this.hoveredPoints.some(hoverPoint => hoverPoint.id === point.id)
-
-          if (isThisPointHovered) {
-            context.fillStyle = point.colorHover || 'rgba(128, 128, 128, 1)'
-          }
-
-          if (point.label && ((this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) || isThisPointHovered)) {
-            const textWidth = context.measureText(point.label).width
-            context.fillText(point.label, px - (textWidth / 2), py - MAX_BUBBLE_RADIUS - 5)
-          }
-
-          context.closePath()
-          context.fill()
-        }
-
-        context.restore()
-      }
+      const canvasChart = d3.select(`#${this.id}`).append('canvas').attr('width', this.chartWidth).attr('height', this.chartHeight)
+      this.context = canvasChart.node().getContext('2d')
 
       const zoom = d3.zoom()
-        .translateExtent([[0, 0], [chartWidth, chartHeight]])
+        .translateExtent([[0, 0], [this.chartWidth, this.chartHeight]])
         .scaleExtent([this.minZoom, this.maxZoom])
-        .on('zoom', (e) => {
-          this.lastZoomEvent = e
-          drawPoints()
-        })
+        .on('zoom', this.zoom)
 
-      d3.select(context.canvas).call(zoom)
+      d3.select(this.context.canvas).call(zoom)
 
       if (this.lastZoomEvent) {
         const { x, y, k } = this.lastZoomEvent.transform
-        zoom.translateTo(d3.select(context.canvas), x, y)
-        zoom.scaleTo(d3.select(context.canvas), k)
+        zoom.translateTo(d3.select(this.context.canvas), x, y)
+        zoom.scaleTo(d3.select(this.context.canvas), k)
       }
 
-      drawPoints()
+      this.drawPoints()
 
-      d3.select(context.canvas).on('mousemove', (event) => {
-        this.hoveredPoints = []
+      d3.select(this.context.canvas).on('mousemove', this.mouseMove)
+      d3.select(this.context.canvas).on('click', this.click)
+    },
+    zoom (event) {
+      this.lastZoomEvent = event
+      this.drawPoints()
+    },
+    click () {
+      if (this.hoveredPoints.length > 0) {
+        this.$emit('click', this.hoveredPoints)
+      }
+    },
+    drawPoints () {
+      if (this.lastZoomEvent) {
+        this.context.save()
+        this.context.clearRect(0, 0, this.chartWidth, this.chartHeight)
 
-        this.allData.forEach(point => {
-          const circle = new Path2D()
+        this.context.translate(this.lastZoomEvent.transform.x, this.lastZoomEvent.transform.y)
+        this.context.scale(this.lastZoomEvent.transform.k, this.lastZoomEvent.transform.k)
+      }
 
-          let px = coordinateScaleX(point.x)
-          let py = coordinateScaleY(point.y)
-          let r = radiusScale(point.r)
+      this.context.fillStyle = this.background
+      this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height)
 
-          if (this.lastZoomEvent) {
-            const {
-              x,
-              y,
-              k
-            } = this.lastZoomEvent.transform
+      for (const point of this.allData) {
+        this.context.beginPath()
+        this.context.fillStyle = point.color || 'rgba(128, 128, 128, 0.8)'
 
-            px = px * k + x
-            py = py * k + y
-            r = r * k
-          }
+        const px = this.coordinateScaleX(point.x)
+        const py = this.coordinateScaleY(point.y)
+        const r = this.radiusScale(point.r)
 
-          circle.arc(px, py, r, 0, 2 * Math.PI, true)
+        this.context.arc(px, py, r, 0, 2 * Math.PI, true)
 
-          if (context.isPointInPath(circle, event.offsetX, event.offsetY)) {
-            this.hoveredPoints.push(point)
-          }
-        })
+        const isThisPointHovered = this.hoveredPoints.some(hoverPoint => hoverPoint.id === point.id)
 
-        if (this.hoveredPoints.length > 0) {
-          context.canvas.style.cursor = 'pointer'
-          drawPoints()
-        } else {
-          context.canvas.style.cursor = 'auto'
-          drawPoints()
+        if (isThisPointHovered) {
+          this.context.fillStyle = point.colorHover || 'rgba(128, 128, 128, 1)'
+        }
+
+        if (point.label && ((this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) || isThisPointHovered)) {
+          const textWidth = this.context.measureText(point.label).width
+          this.context.fillText(point.label, px - (textWidth / 2), py - this.MAX_BUBBLE_RADIUS - 5)
+        }
+
+        this.context.closePath()
+        this.context.fill()
+      }
+
+      this.context.restore()
+    },
+    mouseMove (event) {
+      this.hoveredPoints = []
+
+      this.allData.forEach(point => {
+        const circle = new Path2D()
+
+        let px = this.coordinateScaleX(point.x)
+        let py = this.coordinateScaleY(point.y)
+        let r = this.radiusScale(point.r)
+
+        if (this.lastZoomEvent) {
+          const {
+            x,
+            y,
+            k
+          } = this.lastZoomEvent.transform
+
+          px = px * k + x
+          py = py * k + y
+          r = r * k
+        }
+
+        circle.arc(px, py, r, 0, 2 * Math.PI, true)
+
+        if (this.context.isPointInPath(circle, event.offsetX, event.offsetY)) {
+          this.hoveredPoints.push(point)
         }
       })
 
-      d3.select(context.canvas).on('click', () => {
-        if (this.hoveredPoints.length > 0) {
-          this.$emit('click', this.hoveredPoints)
-        }
-      })
+      if (this.hoveredPoints.length > 0) {
+        this.context.canvas.style.cursor = 'pointer'
+        this.drawPoints()
+      } else {
+        this.context.canvas.style.cursor = 'auto'
+        this.drawPoints()
+      }
     }
   }
 }
