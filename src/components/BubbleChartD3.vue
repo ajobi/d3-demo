@@ -1,5 +1,5 @@
 <template>
-  <div :id="id" />
+  <div :id="id" :style="{ backgroundColor: background }"/>
 </template>
 
 <script>
@@ -99,13 +99,27 @@ export default {
       }
 
       this.drawPoints()
+      this.zoom()
 
       d3.select(this.context.canvas).on('mousemove', this.mouseMove)
       d3.select(this.context.canvas).on('click', this.click)
     },
     zoom (event) {
-      this.lastZoomEvent = event
+      this.lastZoomEvent = event || this.lastZoomEvent
+
+      if (!this.lastZoomEvent) {
+        return
+      }
+
+      this.context.save()
+      this.context.clearRect(0, 0, this.chartWidth, this.chartHeight)
+
+      this.context.translate(this.lastZoomEvent.transform.x, this.lastZoomEvent.transform.y)
+      this.context.scale(this.lastZoomEvent.transform.k, this.lastZoomEvent.transform.k)
+
       this.drawPoints()
+
+      this.context.restore()
     },
     click () {
       if (this.hoveredPoints.length > 0) {
@@ -113,14 +127,6 @@ export default {
       }
     },
     drawPoints () {
-      if (this.lastZoomEvent) {
-        this.context.save()
-        this.context.clearRect(0, 0, this.chartWidth, this.chartHeight)
-
-        this.context.translate(this.lastZoomEvent.transform.x, this.lastZoomEvent.transform.y)
-        this.context.scale(this.lastZoomEvent.transform.k, this.lastZoomEvent.transform.k)
-      }
-
       this.context.fillStyle = this.background
       this.context.fillRect(0, 0, this.context.canvas.width, this.context.canvas.height)
 
@@ -148,8 +154,6 @@ export default {
         this.context.closePath()
         this.context.fill()
       }
-
-      this.context.restore()
     },
     mouseMove (event) {
       this.hoveredPoints = []
@@ -162,11 +166,7 @@ export default {
         let r = this.radiusScale(point.r)
 
         if (this.lastZoomEvent) {
-          const {
-            x,
-            y,
-            k
-          } = this.lastZoomEvent.transform
+          const { x, y, k } = this.lastZoomEvent.transform
 
           px = px * k + x
           py = py * k + y
@@ -180,13 +180,9 @@ export default {
         }
       })
 
-      if (this.hoveredPoints.length > 0) {
-        this.context.canvas.style.cursor = 'pointer'
-        this.drawPoints()
-      } else {
-        this.context.canvas.style.cursor = 'auto'
-        this.drawPoints()
-      }
+      this.drawPoints()
+      this.zoom()
+      this.context.canvas.style.cursor = this.hoveredPoints.length > 0 ? 'pointer' : 'auto'
     }
   }
 }
