@@ -126,15 +126,23 @@ export default {
         context.restore()
       }
 
-      drawPoints()
-
-      d3.select(context.canvas).call(d3.zoom()
+      const zoom = d3.zoom()
         .translateExtent([[0, 0], [chartWidth, chartHeight]])
         .scaleExtent([this.minZoom, this.maxZoom])
         .on('zoom', (e) => {
           this.lastZoomEvent = e
           drawPoints()
-        }))
+        })
+
+      d3.select(context.canvas).call(zoom)
+
+      if (this.lastZoomEvent) {
+        const { x, y, k } = this.lastZoomEvent.transform
+        zoom.translateTo(d3.select(context.canvas), x, y)
+        zoom.scaleTo(d3.select(context.canvas), k)
+      }
+
+      drawPoints()
 
       d3.select(context.canvas).on('mousemove', (event) => {
         this.hoveredPoints = []
