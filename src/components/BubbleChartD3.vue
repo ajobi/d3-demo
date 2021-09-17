@@ -96,14 +96,14 @@ export default {
       }
 
       this.drawPoints()
-      this.zoom()
+      this.onZoom()
 
-      zoom.on('zoom', this.zoom)
+      zoom.on('zoom', this.onZoom)
       d3.select(this.context.canvas).call(zoom)
-      d3.select(this.context.canvas).on('mousemove', this.mouseMove)
-      d3.select(this.context.canvas).on('click', this.click)
+      d3.select(this.context.canvas).on('mousemove', this.onMouseMove)
+      d3.select(this.context.canvas).on('click', this.onClick)
     },
-    zoom (event) {
+    onZoom (event) {
       this.lastZoomEvent = event || this.lastZoomEvent
 
       if (!this.lastZoomEvent) {
@@ -120,10 +120,39 @@ export default {
 
       this.context.restore()
     },
-    click () {
+    onClick () {
       if (this.hoveredPoints.length > 0) {
         this.$emit('click', this.hoveredPoints)
       }
+    },
+    onMouseMove (event) {
+      this.hoveredPoints = []
+
+      this.allData.forEach(point => {
+        const circle = new Path2D()
+
+        let px = this.coordinateScaleX(point.x)
+        let py = this.coordinateScaleY(point.y)
+        let r = this.radiusScale(point.r)
+
+        if (this.lastZoomEvent) {
+          const { x, y, k } = this.lastZoomEvent.transform
+
+          px = px * k + x
+          py = py * k + y
+          r = r * k
+        }
+
+        circle.arc(px, py, r, 0, 2 * Math.PI, true)
+
+        if (this.context.isPointInPath(circle, event.offsetX, event.offsetY)) {
+          this.hoveredPoints.push(point)
+        }
+      })
+
+      this.drawPoints()
+      this.onZoom()
+      this.context.canvas.style.cursor = this.hoveredPoints.length > 0 ? 'pointer' : 'auto'
     },
     drawPoints () {
       this.context.fillStyle = this.background
@@ -153,35 +182,6 @@ export default {
         this.context.closePath()
         this.context.fill()
       }
-    },
-    mouseMove (event) {
-      this.hoveredPoints = []
-
-      this.allData.forEach(point => {
-        const circle = new Path2D()
-
-        let px = this.coordinateScaleX(point.x)
-        let py = this.coordinateScaleY(point.y)
-        let r = this.radiusScale(point.r)
-
-        if (this.lastZoomEvent) {
-          const { x, y, k } = this.lastZoomEvent.transform
-
-          px = px * k + x
-          py = py * k + y
-          r = r * k
-        }
-
-        circle.arc(px, py, r, 0, 2 * Math.PI, true)
-
-        if (this.context.isPointInPath(circle, event.offsetX, event.offsetY)) {
-          this.hoveredPoints.push(point)
-        }
-      })
-
-      this.drawPoints()
-      this.zoom()
-      this.context.canvas.style.cursor = this.hoveredPoints.length > 0 ? 'pointer' : 'auto'
     }
   }
 }
