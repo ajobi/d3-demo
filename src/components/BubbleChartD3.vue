@@ -82,7 +82,7 @@ export default {
       const context = canvasChart.node().getContext('2d')
 
       this.lastZoomEvent = null
-      let hoveredPoint = null
+      let hoveredPoints = []
 
       const drawPoints = () => {
         context.fillStyle = this.background
@@ -99,7 +99,7 @@ export default {
 
             context.arc(px, py, r, 0, 2 * Math.PI, true)
 
-            if (hoveredPoint && hoveredPoint.pointData.id === point.pointData.id) {
+            if (hoveredPoints.some(hoverPoint => hoverPoint.pointData.id === point.pointData.id)) {
               context.fillStyle = point.colorHover || 'rgba(128, 128, 128, 1)'
             }
 
@@ -132,7 +132,7 @@ export default {
         }))
 
       d3.select(context.canvas).on('mousemove', (event) => {
-        hoveredPoint = null
+        hoveredPoints = []
 
         allData.forEach(point => {
           const circle = new Path2D()
@@ -156,11 +156,11 @@ export default {
           circle.arc(px, py, r, 0, 2 * Math.PI, true)
 
           if (context.isPointInPath(circle, event.offsetX, event.offsetY)) {
-            hoveredPoint = point
+            hoveredPoints.push(point)
           }
         })
 
-        if (hoveredPoint) {
+        if (hoveredPoints.length > 0) {
           context.canvas.style.cursor = 'pointer'
           drawPoints()
         } else {
@@ -170,8 +170,8 @@ export default {
       })
 
       d3.select(context.canvas).on('click', () => {
-        if (hoveredPoint) {
-          alert(`${hoveredPoint.pointData._type} - ${hoveredPoint.pointData.id}`)
+        if (hoveredPoints.length > 0) {
+          alert(`${hoveredPoints[hoveredPoints.length - 1].pointData._type} - ${hoveredPoints[hoveredPoints.length - 1].pointData.id}`)
         }
       })
     }
