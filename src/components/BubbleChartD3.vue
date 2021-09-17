@@ -23,7 +23,7 @@ export default {
     },
     maxZoom: {
       type: Number,
-      default: 8
+      default: 4
     },
     background: {
       type: String,
