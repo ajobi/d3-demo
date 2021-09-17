@@ -176,7 +176,7 @@ export default {
 
       d3.select(context.canvas).on('click', () => {
         if (hoveredPoints.length > 0) {
-          alert(`${hoveredPoints[hoveredPoints.length - 1].pointData._type} - ${hoveredPoints[hoveredPoints.length - 1].pointData.id}`)
+          this.$emit('click', hoveredPoints)
         }
       })
     }

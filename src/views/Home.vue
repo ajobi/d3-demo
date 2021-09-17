@@ -1,6 +1,6 @@
 <template>
   <div class="home">
-    <BubbleChartD3 :data="data" />
+    <BubbleChartD3 :data="data" @click="onPointClicked" />
   </div>
 </template>
 
@@ -33,6 +33,13 @@ export default defineComponent({
           })
         }
       ]
+    }
+  },
+  methods: {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    onPointClicked (points) {
+      alert(`${points[points.length - 1].pointData._type} - ${points[points.length - 1].pointData.id}`)
     }
   }
 })
