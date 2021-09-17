@@ -1,7 +1,5 @@
 <template>
-  <div class="home">
-    <BubbleChartD3 :data="data" @click="onPointClicked" />
-  </div>
+  <BubbleChartD3 :data="data" @click="onPointClicked" class="bubble-chart"/>
 </template>
 
 <script lang="ts">
@@ -51,11 +49,8 @@ body {
   margin: 0;
 }
 
-.home {
+.bubble-chart {
   height: 100vh;
   width: 100vw;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 </style>

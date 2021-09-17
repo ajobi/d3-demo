@@ -58,8 +58,8 @@ export default {
     drawChart () {
       d3.select(`#${this.id} > *`).remove()
 
-      this.chartWidth = window.innerWidth
-      this.chartHeight = window.innerHeight
+      this.chartWidth = this.$el.offsetWidth
+      this.chartHeight = this.$el.offsetHeight
 
       this.coordinateScaleX = d3.scaleLinear()
       this.coordinateScaleY = d3.scaleLinear()
