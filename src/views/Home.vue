@@ -38,7 +38,9 @@ export default defineComponent({
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
     // @ts-ignore
     onPointClicked (points) {
-      alert(`${points[points.length - 1].pointData._type} - ${points[points.length - 1].pointData.id}`)
+      if (points.length > 0) {
+        alert(`${points[points.length - 1].pointData._type} - ${points[points.length - 1].pointData.id}`)
+      }
     }
   }
 })
