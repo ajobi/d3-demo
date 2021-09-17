@@ -45,6 +45,15 @@ export default {
 
     this.drawChart()
   },
+  computed: {
+    allData () {
+      const allData = []
+      for (const dataSet of this.data) {
+        allData.push(...dataSet)
+      }
+      return allData
+    }
+  },
   methods: {
     drawChart () {
       d3.select(`#${this.id} > *`).remove()
@@ -56,17 +65,12 @@ export default {
       const coordinateScaleY = d3.scaleLinear()
       const radiusScale = d3.scaleLinear()
 
-      const allData = []
-      for (const dataSet of this.data) {
-        allData.push(...dataSet)
-      }
-
-      const minX = d3.min(allData, d => d.x)
-      const maxX = d3.max(allData, d => d.x)
-      const minY = d3.min(allData, d => d.y)
-      const maxY = d3.max(allData, d => d.y)
-      const minR = d3.min(allData, d => d.r)
-      const maxR = d3.max(allData, d => d.r)
+      const minX = d3.min(this.allData, d => d.x)
+      const maxX = d3.max(this.allData, d => d.x)
+      const minY = d3.min(this.allData, d => d.y)
+      const maxY = d3.max(this.allData, d => d.y)
+      const minR = d3.min(this.allData, d => d.r)
+      const maxR = d3.max(this.allData, d => d.r)
 
       const paddingX = Math.abs(minX * 0.2)
       const paddingY = Math.abs(minY * 0.2)
@@ -96,7 +100,7 @@ export default {
         context.fillStyle = this.background
         context.fillRect(0, 0, context.canvas.width, context.canvas.height)
 
-        for (const point of allData) {
+        for (const point of this.allData) {
           context.beginPath()
           context.fillStyle = point.color || 'rgba(128, 128, 128, 0.8)'
 
@@ -145,7 +149,7 @@ export default {
       d3.select(context.canvas).on('mousemove', (event) => {
         this.hoveredPoints = []
 
-        allData.forEach(point => {
+        this.allData.forEach(point => {
           const circle = new Path2D()
 
           let px = coordinateScaleX(point.x)
