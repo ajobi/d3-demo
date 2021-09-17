@@ -33,6 +33,9 @@ export default {
   mounted () {
     let timeout = null
 
+    this.lastZoomEvent = null
+    this.hoveredPoints = []
+
     window.addEventListener('resize', () => {
       clearTimeout(timeout)
       timeout = setTimeout(() => {
@@ -81,9 +84,6 @@ export default {
 
       const context = canvasChart.node().getContext('2d')
 
-      this.lastZoomEvent = null
-      let hoveredPoints = []
-
       const drawPoints = () => {
         if (this.lastZoomEvent) {
           context.save()
@@ -107,7 +107,7 @@ export default {
 
             context.arc(px, py, r, 0, 2 * Math.PI, true)
 
-            const isThisPointHovered = hoveredPoints.some(hoverPoint => hoverPoint.id === point.id)
+            const isThisPointHovered = this.hoveredPoints.some(hoverPoint => hoverPoint.id === point.id)
 
             if (isThisPointHovered) {
               context.fillStyle = point.colorHover || 'rgba(128, 128, 128, 1)'
@@ -137,7 +137,7 @@ export default {
         }))
 
       d3.select(context.canvas).on('mousemove', (event) => {
-        hoveredPoints = []
+        this.hoveredPoints = []
 
         allData.forEach(point => {
           const circle = new Path2D()
@@ -161,11 +161,11 @@ export default {
           circle.arc(px, py, r, 0, 2 * Math.PI, true)
 
           if (context.isPointInPath(circle, event.offsetX, event.offsetY)) {
-            hoveredPoints.push(point)
+            this.hoveredPoints.push(point)
           }
         })
 
-        if (hoveredPoints.length > 0) {
+        if (this.hoveredPoints.length > 0) {
           context.canvas.style.cursor = 'pointer'
           drawPoints()
         } else {
@@ -175,8 +175,8 @@ export default {
       })
 
       d3.select(context.canvas).on('click', () => {
-        if (hoveredPoints.length > 0) {
-          this.$emit('click', hoveredPoints)
+        if (this.hoveredPoints.length > 0) {
+          this.$emit('click', this.hoveredPoints)
         }
       })
     }
