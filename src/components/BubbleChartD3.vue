@@ -5,8 +5,6 @@
 <script>
 import * as d3 from 'd3'
 
-const BACKGROUND_ARTICLE = 'rgba(161,210,199,0.8)'
-const BACKGROUND_TOPIC = 'rgba(128, 128, 128, 0.8)'
 const DEBOUNCE_TIME = 5
 
 export default {
@@ -84,6 +82,7 @@ export default {
       const context = canvasChart.node().getContext('2d')
 
       this.lastZoomEvent = null
+      let hoveredPoint = null
 
       const drawPoints = () => {
         context.fillStyle = this.background
@@ -92,13 +91,17 @@ export default {
         for (const dataSet of this.data) {
           for (const point of dataSet.dataSet) {
             context.beginPath()
-            context.fillStyle = point.pointData._type === 'ARTICLE' ? BACKGROUND_ARTICLE : BACKGROUND_TOPIC
+            context.fillStyle = point.color || 'rgba(128, 128, 128, 0.8)'
 
             const px = coordinateScaleX(point.x)
             const py = coordinateScaleY(point.y)
             const r = radiusScale(point.r)
 
             context.arc(px, py, r, 0, 2 * Math.PI, true)
+
+            if (hoveredPoint && hoveredPoint.pointData.id === point.pointData.id) {
+              context.fillStyle = point.colorHover || 'rgba(128, 128, 128, 1)'
+            }
 
             if (point.pointData._type === 'TOPIC' && this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) {
               const textWidth = context.measureText(point.pointData.title).width
@@ -127,8 +130,6 @@ export default {
           context.restore()
           this.lastZoomEvent = e
         }))
-
-      let hoveredPoint = null
 
       d3.select(context.canvas).on('mousemove', (event) => {
         hoveredPoint = null
@@ -161,8 +162,10 @@ export default {
 
         if (hoveredPoint) {
           context.canvas.style.cursor = 'pointer'
+          drawPoints()
         } else {
           context.canvas.style.cursor = 'auto'
+          drawPoints()
         }
       })
 
