@@ -65,11 +65,12 @@ export default {
       const paddingX = Math.abs(minX * 0.2)
       const paddingY = Math.abs(minY * 0.2)
 
-      const MAX_BUBBLE_RADIUS = Math.max(chartWidth / 50, 40)
+      const MIN_BUBBLE_RADIUS = Math.max(chartWidth / 1000, 2)
+      const MAX_BUBBLE_RADIUS = Math.max(chartWidth / 50, 30)
 
       coordinateScaleX.domain([minX - paddingX, maxX + paddingX]).range([0, chartWidth])
       coordinateScaleY.domain([minY - paddingY, maxY + paddingY]).range([0, chartHeight])
-      radiusScale.domain([minR, maxR]).range([chartWidth / 1000, MAX_BUBBLE_RADIUS])
+      radiusScale.domain([minR, maxR]).range([MIN_BUBBLE_RADIUS, MAX_BUBBLE_RADIUS])
 
       const canvasChart = d3.select(`#${this.id}`).append('canvas')
         .attr('width', chartWidth)
