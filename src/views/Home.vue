@@ -49,6 +49,10 @@ export default defineComponent({
 </script>
 
 <style>
+body {
+  margin: 0;
+}
+
 .home {
   height: 100vh;
   width: 100vw;
