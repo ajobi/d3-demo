@@ -80,8 +80,8 @@ export default createStore({
       })
 
       return [
-        ...topicPoints,
-        ...articlePoints
+        { dataSet: topicPoints },
+        { dataSet: articlePoints }
       ]
     }
   }

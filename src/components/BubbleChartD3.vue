@@ -55,12 +55,17 @@ export default {
       const coordinateScaleY = d3.scaleLinear()
       const radiusScale = d3.scaleLinear()
 
-      const minX = d3.min(this.data, d => d.x)
-      const maxX = d3.max(this.data, d => d.x)
-      const minY = d3.min(this.data, d => d.y)
-      const maxY = d3.max(this.data, d => d.y)
-      const minR = d3.min(this.data, d => d.r)
-      const maxR = d3.max(this.data, d => d.r)
+      const allData = []
+      for (const dataSet of this.data) {
+        allData.push(...dataSet.dataSet)
+      }
+
+      const minX = d3.min(allData, d => d.x)
+      const maxX = d3.max(allData, d => d.x)
+      const minY = d3.min(allData, d => d.y)
+      const maxY = d3.max(allData, d => d.y)
+      const minR = d3.min(allData, d => d.r)
+      const maxR = d3.max(allData, d => d.r)
 
       const paddingX = Math.abs(minX * 0.2)
       const paddingY = Math.abs(minY * 0.2)
@@ -84,23 +89,25 @@ export default {
         context.fillStyle = this.background
         context.fillRect(0, 0, context.canvas.width, context.canvas.height)
 
-        for (const point of this.data) {
-          context.beginPath()
-          context.fillStyle = point.pointData._type === 'ARTICLE' ? BACKGROUND_ARTICLE : BACKGROUND_TOPIC
+        for (const dataSet of this.data) {
+          for (const point of dataSet.dataSet) {
+            context.beginPath()
+            context.fillStyle = point.pointData._type === 'ARTICLE' ? BACKGROUND_ARTICLE : BACKGROUND_TOPIC
 
-          const px = coordinateScaleX(point.x)
-          const py = coordinateScaleY(point.y)
-          const r = radiusScale(point.r)
+            const px = coordinateScaleX(point.x)
+            const py = coordinateScaleY(point.y)
+            const r = radiusScale(point.r)
 
-          context.arc(px, py, r, 0, 2 * Math.PI, true)
+            context.arc(px, py, r, 0, 2 * Math.PI, true)
 
-          if (point.pointData._type === 'TOPIC' && this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) {
-            const textWidth = context.measureText(point.pointData.title).width
-            context.fillText(point.pointData.title, px - (textWidth / 2), py - MAX_BUBBLE_RADIUS - 5)
+            if (point.pointData._type === 'TOPIC' && this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) {
+              const textWidth = context.measureText(point.pointData.title).width
+              context.fillText(point.pointData.title, px - (textWidth / 2), py - MAX_BUBBLE_RADIUS - 5)
+            }
+
+            context.closePath()
+            context.fill()
           }
-
-          context.closePath()
-          context.fill()
         }
       }
 
@@ -126,7 +133,7 @@ export default {
       d3.select(context.canvas).on('mousemove', (event) => {
         hoveredPoint = null
 
-        this.data.forEach(point => {
+        allData.forEach(point => {
           const circle = new Path2D()
 
           let px = coordinateScaleX(point.x)
