@@ -58,7 +58,7 @@ export default {
 
       const allData = []
       for (const dataSet of this.data) {
-        allData.push(...dataSet.dataSet)
+        allData.push(...dataSet)
       }
 
       const minX = d3.min(allData, d => d.x)
@@ -97,7 +97,7 @@ export default {
         context.fillRect(0, 0, context.canvas.width, context.canvas.height)
 
         for (const dataSet of this.data) {
-          for (const point of dataSet.dataSet) {
+          for (const point of dataSet) {
             context.beginPath()
             context.fillStyle = point.color || 'rgba(128, 128, 128, 0.8)'
 
