@@ -28,6 +28,14 @@ export default {
     background: {
       type: String,
       default: '#EEE'
+    },
+    defaultColor: {
+      type: String,
+      default: 'rgba(128, 128, 128, 0.8)'
+    },
+    defaultHoverColor: {
+      type: String,
+      default: 'rgba(128, 128, 128, 1)'
     }
   },
   mounted () {
@@ -160,7 +168,7 @@ export default {
 
       for (const point of this.allData) {
         this.context.beginPath()
-        this.context.fillStyle = point.color || 'rgba(128, 128, 128, 0.8)'
+        this.context.fillStyle = point.color || this.defaultColor
 
         const px = this.coordinateScaleX(point.x)
         const py = this.coordinateScaleY(point.y)
@@ -171,7 +179,7 @@ export default {
         const isThisPointHovered = this.hoveredPoints.some(hoverPoint => hoverPoint.id === point.id)
 
         if (isThisPointHovered) {
-          this.context.fillStyle = point.colorHover || 'rgba(128, 128, 128, 1)'
+          this.context.fillStyle = point.colorHover || this.defaultHoverColor
         }
 
         if (point.label && ((this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) || isThisPointHovered)) {
