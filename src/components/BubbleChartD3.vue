@@ -64,10 +64,16 @@ export default {
   },
   methods: {
     drawChart () {
-      d3.select(`#${this.id} > *`).remove()
-
       this.chartWidth = this.$el.offsetWidth
       this.chartHeight = this.$el.offsetHeight
+
+      if (this.context) {
+        this.context.clearRect(0, 0, this.chartWidth, this.chartHeight)
+        d3.select(`#${this.id} canvas`).attr('width', this.chartWidth).attr('height', this.chartHeight)
+      } else {
+        const canvasChart = d3.select(`#${this.id}`).append('canvas').attr('width', this.chartWidth).attr('height', this.chartHeight)
+        this.context = canvasChart.node().getContext('2d')
+      }
 
       this.coordinateScaleX = d3.scaleLinear()
       this.coordinateScaleY = d3.scaleLinear()
@@ -93,15 +99,6 @@ export default {
       this.zoom = d3.zoom()
         .translateExtent([[0, 0], [this.chartWidth, this.chartHeight]])
         .scaleExtent([this.minZoom, this.maxZoom])
-
-      const canvasChart = d3.select(`#${this.id}`).append('canvas').attr('width', this.chartWidth).attr('height', this.chartHeight)
-      this.context = canvasChart.node().getContext('2d')
-
-      if (this.lastZoomEvent) {
-        const { x, y, k } = this.lastZoomEvent.transform
-        this.zoom.translateTo(d3.select(this.context.canvas), x, y)
-        this.zoom.scaleTo(d3.select(this.context.canvas), k)
-      }
 
       this.drawPoints()
       this.onZoom()
