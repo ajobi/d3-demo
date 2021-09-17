@@ -107,15 +107,15 @@ export default {
 
             context.arc(px, py, r, 0, 2 * Math.PI, true)
 
-            const isThisPointHovered = hoveredPoints.some(hoverPoint => hoverPoint.pointData.id === point.pointData.id)
+            const isThisPointHovered = hoveredPoints.some(hoverPoint => hoverPoint.id === point.id)
 
             if (isThisPointHovered) {
               context.fillStyle = point.colorHover || 'rgba(128, 128, 128, 1)'
             }
 
-            if (point.pointData._type === 'TOPIC' && ((this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) || isThisPointHovered)) {
-              const textWidth = context.measureText(point.pointData.title).width
-              context.fillText(point.pointData.title, px - (textWidth / 2), py - MAX_BUBBLE_RADIUS - 5)
+            if (point.label && ((this.lastZoomEvent && this.lastZoomEvent.transform.k > 2) || isThisPointHovered)) {
+              const textWidth = context.measureText(point.label).width
+              context.fillText(point.label, px - (textWidth / 2), py - MAX_BUBBLE_RADIUS - 5)
             }
 
             context.closePath()

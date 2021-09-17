@@ -20,6 +20,8 @@ export default defineComponent({
           dataSet: this.$store.getters.data[0].map(d => {
             d.color = 'rgba(128, 128, 128, 0.8)'
             d.colorHover = 'rgba(128, 128, 128, 1)'
+            d.label = d.pointData.title
+            d.id = d.pointData.id
             return d
           })
         },
@@ -29,6 +31,7 @@ export default defineComponent({
           dataSet: this.$store.getters.data[1].map(d => {
             d.color = 'rgba(161, 210, 199, 0.8)'
             d.colorHover = 'rgba(161, 210, 199, 1)'
+            d.id = d.pointData.id
             return d
           })
         }
