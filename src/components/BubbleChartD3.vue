@@ -82,15 +82,12 @@ export default {
       this.coordinateScaleY.domain([minY - paddingY, maxY + paddingY]).range([0, this.chartHeight])
       this.radiusScale.domain([minR, maxR]).range([this.MIN_BUBBLE_RADIUS, this.MAX_BUBBLE_RADIUS])
 
-      const canvasChart = d3.select(`#${this.id}`).append('canvas').attr('width', this.chartWidth).attr('height', this.chartHeight)
-      this.context = canvasChart.node().getContext('2d')
-
       const zoom = d3.zoom()
         .translateExtent([[0, 0], [this.chartWidth, this.chartHeight]])
         .scaleExtent([this.minZoom, this.maxZoom])
-        .on('zoom', this.zoom)
 
-      d3.select(this.context.canvas).call(zoom)
+      const canvasChart = d3.select(`#${this.id}`).append('canvas').attr('width', this.chartWidth).attr('height', this.chartHeight)
+      this.context = canvasChart.node().getContext('2d')
 
       if (this.lastZoomEvent) {
         const { x, y, k } = this.lastZoomEvent.transform
@@ -101,6 +98,8 @@ export default {
       this.drawPoints()
       this.zoom()
 
+      zoom.on('zoom', this.zoom)
+      d3.select(this.context.canvas).call(zoom)
       d3.select(this.context.canvas).on('mousemove', this.mouseMove)
       d3.select(this.context.canvas).on('click', this.click)
     },
